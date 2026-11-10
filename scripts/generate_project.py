@@ -65,8 +65,8 @@ def generate() -> dict[Path, str]:
     }
     app_settings = {
         "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon", "CODE_SIGN_STYLE": "Automatic",
-        "CURRENT_PROJECT_VERSION": "3", "GENERATE_INFOPLIST_FILE": "NO", "INFOPLIST_FILE": "RCView/Info.plist",
-        "LD_RUNPATH_SEARCH_PATHS": "$(inherited) @executable_path/Frameworks", "MARKETING_VERSION": "1.1.1",
+        "CURRENT_PROJECT_VERSION": "4", "GENERATE_INFOPLIST_FILE": "NO", "INFOPLIST_FILE": "RCView/Info.plist",
+        "LD_RUNPATH_SEARCH_PATHS": "$(inherited) @executable_path/Frameworks", "MARKETING_VERSION": "1.2.0",
         "PRODUCT_BUNDLE_IDENTIFIER": "com.rcview.personal", "PRODUCT_NAME": "$(TARGET_NAME)",
         "SUPPORTED_PLATFORMS": "iphoneos iphonesimulator", "SUPPORTS_MACCATALYST": "NO", "SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD": "NO",
         "TARGETED_DEVICE_FAMILY": "2",

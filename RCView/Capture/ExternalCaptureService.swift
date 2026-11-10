@@ -25,7 +25,7 @@ final class ExternalCaptureService: NSObject, CaptureService, AVCaptureVideoData
     private var wantsToRun = true
     private var interrupted = false
     private var permissionRequestInFlight = false
-    private var recoveryAttempts = 0
+    private var recovery = CaptureRecoveryPolicy()
 
     private struct NativeFormat {
         let option: VideoFormatOption
@@ -64,6 +64,7 @@ final class ExternalCaptureService: NSObject, CaptureService, AVCaptureVideoData
             self.wantsToRun = autoPreview
             self.installObservers()
             self.installWatchdog()
+            if self.wantsToRun { self.recovery.begin(at: ProcessInfo.processInfo.systemUptime) }
             self.authorizeAndDiscover()
         }
     }
@@ -72,10 +73,16 @@ final class ExternalCaptureService: NSObject, CaptureService, AVCaptureVideoData
         queue.async { [weak self] in
             guard let self else { return }
             self.autoPreview = enabled
-            if !enabled && self.input == nil { self.wantsToRun = false }
+            if !enabled && self.input == nil {
+                self.wantsToRun = false
+                self.recovery.cancel()
+            }
             if enabled && self.input == nil {
                 self.wantsToRun = true
-                if self.begun { self.authorizeAndDiscover() }
+                if self.begun {
+                    self.recovery.begin(at: ProcessInfo.processInfo.systemUptime)
+                    self.authorizeAndDiscover()
+                }
             }
         }
     }
@@ -93,7 +100,7 @@ final class ExternalCaptureService: NSObject, CaptureService, AVCaptureVideoData
             // Clear a failed manual choice and negotiate the preferred supported format again.
             if self.snapshot.phase == .failed { self.desiredFormat = nil }
             self.wantsToRun = true
-            self.recoveryAttempts = 0
+            self.recovery.begin(at: ProcessInfo.processInfo.systemUptime)
             self.authorizeAndDiscover(forceReconfigure: true)
         }
     }
@@ -104,7 +111,7 @@ final class ExternalCaptureService: NSObject, CaptureService, AVCaptureVideoData
             self.desiredDeviceID = id
             self.desiredFormat = nil
             self.wantsToRun = true
-            self.recoveryAttempts = 0
+            self.recovery.begin(at: ProcessInfo.processInfo.systemUptime)
             self.authorizeAndDiscover(forceReconfigure: true)
         }
     }
@@ -121,7 +128,7 @@ final class ExternalCaptureService: NSObject, CaptureService, AVCaptureVideoData
             ).devices.first(where: { $0.uniqueID == deviceID && $0.isConnected }) else { return }
             self.desiredFormat = choice
             self.wantsToRun = true
-            self.recoveryAttempts = 0
+            self.recovery.begin(at: ProcessInfo.processInfo.systemUptime)
             self.configure(device: device, selectedFormatID: id)
         }
     }
@@ -132,11 +139,15 @@ final class ExternalCaptureService: NSObject, CaptureService, AVCaptureVideoData
             self.active = active
             guard self.begun else { return }
             if active {
+                // USB devices may appear later than the foreground transition.
+                // Preserve the previous device, format and explicit start intent.
+                if self.wantsToRun { self.recovery.begin(at: ProcessInfo.processInfo.systemUptime) }
                 self.authorizeAndDiscover(forceReconfigure: true)
             } else {
+                self.recovery.cancel()
                 self.stopAndRemoveGraph()
                 self.snapshot.observedFPS = nil
-                self.transition(.paused, "앱으로 돌아오면 외부 장치를 다시 확인합니다.")
+                self.transition(.paused, "화면을 켜고 앱으로 돌아오면 연결된 외부 장치의 영상을 자동으로 다시 표시합니다.")
             }
         }
     }
@@ -163,6 +174,7 @@ final class ExternalCaptureService: NSObject, CaptureService, AVCaptureVideoData
                 }
             }
         case .denied, .restricted:
+            recovery.cancel()
             stopAndRemoveGraph()
             clearSelectionSnapshot()
             snapshot.devices = []
@@ -170,6 +182,7 @@ final class ExternalCaptureService: NSObject, CaptureService, AVCaptureVideoData
                 ? "시스템에서 제한됨" : "거부됨"
             transition(.denied, "설정에서 RC View의 카메라 접근을 허용해 주세요. 기기 제한이 설정된 경우 제한 설정도 확인해 주세요.")
         @unknown default:
+            recovery.cancel()
             stopAndRemoveGraph()
             snapshot.permissionDescription = "알 수 없음"
             transition(.failed, "카메라 권한을 확인하지 못했습니다. 앱을 다시 열어 주세요.")
@@ -189,7 +202,12 @@ final class ExternalCaptureService: NSObject, CaptureService, AVCaptureVideoData
             let wasConnected = input != nil || desiredDeviceID != nil
             stopAndRemoveGraph()
             clearSelectionSnapshot()
-            wantsToRun = autoPreview
+            // A temporary USB disappearance during wake must not erase a
+            // manually started stream when automatic preview is disabled.
+            if wantsToRun && recovery.hasPendingRetry {
+                transition(.reconnecting, "연결된 외부 영상 장치를 다시 찾고 있습니다. 잠시 기다려 주세요.")
+                return
+            }
             transition(wasConnected ? .disconnected : .unavailable,
                        wasConnected
                         ? "외부 영상 장치가 분리되었습니다. 캡처카드를 다시 연결해 주세요."
@@ -211,7 +229,11 @@ final class ExternalCaptureService: NSObject, CaptureService, AVCaptureVideoData
         guard let device = chosen else {
             stopAndRemoveGraph()
             clearSelectionSnapshot()
-            wantsToRun = autoPreview
+            if desiredDeviceID == nil { recovery.cancel() }
+            if desiredDeviceID != nil && wantsToRun && recovery.hasPendingRetry {
+                transition(.reconnecting, "사용하던 외부 영상 장치를 다시 찾고 있습니다. 다른 장치로 전환하지 않습니다.")
+                return
+            }
             let message = desiredDeviceID != nil
                 ? "사용하던 장치가 없습니다. 다시 연결하거나 장치 목록에서 사용할 장치를 선택해 주세요."
                 : discovered.count > 1
@@ -222,6 +244,7 @@ final class ExternalCaptureService: NSObject, CaptureService, AVCaptureVideoData
         }
 
         guard wantsToRun else {
+            recovery.cancel()
             stopAndRemoveGraph()
             clearSelectionSnapshot()
             transition(.unavailable, "외부 장치가 감지되었습니다. 자동 미리보기가 꺼져 있으므로 연결 화면에서 장치를 선택해 주세요.")
@@ -323,9 +346,12 @@ final class ExternalCaptureService: NSObject, CaptureService, AVCaptureVideoData
             snapshot.activeFormatDescription = "\(actualDimensions.width) × \(actualDimensions.height) · \(Self.fpsText(configuredFPS)) fps"
             // A legitimately slow mode must not be called stalled between frames.
             frameHealth = FrameHealthMonitor(timeout: max(2.5, 3 / configuredFPS))
-            frameHealth.reset(at: ProcessInfo.processInfo.systemUptime)
             transition(.waiting, "캡처카드는 연결되었지만 아직 영상 프레임이 도착하지 않았습니다.")
             session.startRunning()
+            // Starting a USB device can itself block during wake. Sample
+            // callbacks share this queue, so start the arrival timeout only
+            // after startRunning returns and before any first frame is handled.
+            frameHealth.reset(at: ProcessInfo.processInfo.systemUptime)
             if !session.isRunning && !session.isInterrupted {
                 transition(.failed, "영상 세션을 시작하지 못했습니다. 연결과 전원을 확인한 뒤 재연결해 주세요.")
             }
@@ -424,42 +450,55 @@ final class ExternalCaptureService: NSObject, CaptureService, AVCaptureVideoData
                 guard let device = note.object as? AVCaptureDevice, device.deviceType == .external else { return }
                 let connected = name == AVCaptureDevice.wasConnectedNotification
                 let deviceName = device.localizedName
+                let deviceID = device.uniqueID
                 self?.queue.async { [weak self] in
                     guard let self else { return }
                     self.addEvent("\(deviceName) — \(connected ? "장치 연결" : "장치 연결 해제")")
-                    if self.active { self.authorizeAndDiscover() } else { self.publish() }
+                    if self.active {
+                        if connected && self.wantsToRun,
+                           self.desiredDeviceID == nil || self.desiredDeviceID == deviceID {
+                            self.recovery.beginIfNeeded(at: ProcessInfo.processInfo.systemUptime)
+                        }
+                        self.authorizeAndDiscover()
+                    } else { self.publish() }
                 }
             })
         }
         observers.append(center.addObserver(forName: AVCaptureSession.wasInterruptedNotification, object: session, queue: nil) { [weak self] _ in
             self?.queue.async { [weak self] in
-                guard let self, self.active else { return }
+                guard let self, self.active, self.session.isInterrupted else { return }
                 self.interrupted = true
                 self.snapshot.observedFPS = nil
+                if self.wantsToRun { self.recovery.beginIfNeeded(at: ProcessInfo.processInfo.systemUptime) }
                 self.transition(.stalled, "시스템이 영상 세션을 일시 중단했습니다. 다른 카메라 사용 앱을 닫아 주세요. 창 모드에서 계속 중단되면 iPad의 앱 창을 전체 화면으로 확장해 주세요.")
             }
         })
         observers.append(center.addObserver(forName: AVCaptureSession.interruptionEndedNotification, object: session, queue: nil) { [weak self] _ in
             self?.queue.async { [weak self] in
-                guard let self else { return }
+                guard let self, !self.session.isInterrupted else { return }
                 self.interrupted = false
-                if self.active { self.authorizeAndDiscover(forceReconfigure: true) }
+                if self.active && self.wantsToRun {
+                    // The OS may resume delivery itself. The watchdog only
+                    // reconfigures if the normal frame-arrival timeout expires.
+                    self.recovery.beginIfNeeded(at: ProcessInfo.processInfo.systemUptime)
+                }
             }
         })
         observers.append(center.addObserver(forName: AVCaptureSession.runtimeErrorNotification, object: session, queue: nil) { [weak self] note in
             let error = note.userInfo?[AVCaptureSessionErrorKey] as? NSError
-            let reset = error?.code == AVError.Code.mediaServicesWereReset.rawValue
             let message = error?.localizedDescription ?? "원인을 확인할 수 없는 오류"
             self?.queue.async { [weak self] in
                 guard let self, self.active else { return }
-                self.stopAndRemoveGraph()
-                self.transition(.failed, "영상 세션 오류: \(message). 연결을 확인한 뒤 재연결해 주세요.")
-                if reset, self.active, self.wantsToRun, self.recoveryAttempts < 2 {
-                    self.recoveryAttempts += 1
-                    self.queue.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-                        guard let self, self.active else { return }
-                        self.authorizeAndDiscover(forceReconfigure: true)
-                    }
+                // An error notification can be queued by a graph that has
+                // already been replaced. Do not tear down a healthy new graph;
+                // let the watchdog inspect current session/frame state first.
+                self.addEvent("영상 세션 알림: \(message)")
+                if self.wantsToRun { self.recovery.beginIfNeeded(at: ProcessInfo.processInfo.systemUptime) }
+                if !self.session.isRunning && !self.session.isInterrupted {
+                    self.snapshot.observedFPS = nil
+                    self.transition(.failed, "영상 세션 오류: \(message). 연결된 외부 장치의 영상을 다시 확인합니다.")
+                } else {
+                    self.publish()
                 }
             }
         })
@@ -469,20 +508,43 @@ final class ExternalCaptureService: NSObject, CaptureService, AVCaptureVideoData
         let timer = DispatchSource.makeTimerSource(queue: queue)
         timer.schedule(deadline: .now() + 0.5, repeating: 0.5, leeway: .milliseconds(100))
         timer.setEventHandler { [weak self] in
-            guard let self, self.active, self.input != nil, !self.interrupted,
-                  [.waiting, .receiving, .stalled].contains(self.snapshot.phase) else { return }
-            guard self.session.isRunning else {
-                self.snapshot.observedFPS = nil
-                self.transition(.stalled, "영상 세션이 멈췄습니다. 외부 장치 연결을 확인한 뒤 다시 연결해 주세요.")
-                return
-            }
+            guard let self, self.active, self.wantsToRun else { return }
             let now = ProcessInfo.processInfo.systemUptime
-            if self.frameHealth.state(at: now) == .stalled {
-                self.snapshot.observedFPS = nil
-                self.transition(.stalled, "캡처카드는 연결되었지만 영상 프레임이 도착하지 않습니다. 조종기 출력과 HDMI 연결을 확인하거나 재연결해 주세요.")
-            } else if let fps = self.frameHealth.sampleFPS(at: now), self.snapshot.phase == .receiving {
-                self.snapshot.observedFPS = fps
-                self.publish()
+            var needsRecovery = self.input == nil
+            if self.input != nil {
+                // Ignore stale interruption notifications from a pre-lock graph.
+                self.interrupted = self.session.isInterrupted
+                if self.interrupted {
+                    self.snapshot.observedFPS = nil
+                    self.transition(.stalled, "시스템이 영상 세션을 일시 중단했습니다. 다른 카메라 사용 앱을 닫아 주세요. 창 모드에서 계속 중단되면 iPad의 앱 창을 전체 화면으로 확장해 주세요.")
+                    self.recovery.beginIfNeeded(at: now)
+                    // Do not fight an OS-owned interruption with repeated starts.
+                    // Keep the budget for when the session becomes available.
+                    needsRecovery = false
+                } else if !self.session.isRunning {
+                    self.snapshot.observedFPS = nil
+                    self.transition(.stalled, "영상 세션이 멈췄습니다. 연결된 외부 장치의 영상을 다시 확인합니다.")
+                    self.recovery.beginIfNeeded(at: now)
+                    needsRecovery = true
+                } else if self.frameHealth.state(at: now) == .stalled {
+                    self.snapshot.observedFPS = nil
+                    self.transition(.stalled, "캡처카드는 연결되었지만 영상 프레임이 도착하지 않습니다. 조종기 출력과 HDMI 연결을 확인해 주세요.")
+                    self.recovery.beginIfNeeded(at: now)
+                    needsRecovery = true
+                } else {
+                    // Respect each format's initial-frame/low-FPS timeout;
+                    // a scheduled retry must not tear down a healthy wait.
+                    needsRecovery = false
+                    if let fps = self.frameHealth.sampleFPS(at: now), self.snapshot.phase == .receiving {
+                        self.snapshot.observedFPS = fps
+                        self.publish()
+                    }
+                }
+            }
+            let authorized = AVCaptureDevice.authorizationStatus(for: .video) == .authorized
+            if self.recovery.takeRetry(at: now, needsRecovery: needsRecovery && authorized && !self.session.isInterrupted) {
+                self.addEvent("외부 영상 연결 자동 복구 \(self.recovery.attempts)/3")
+                self.authorizeAndDiscover(forceReconfigure: true)
             }
         }
         watchdog = timer
@@ -495,8 +557,8 @@ final class ExternalCaptureService: NSObject, CaptureService, AVCaptureVideoData
         let now = ProcessInfo.processInfo.systemUptime
         if snapshot.phase != .receiving {
             frameHealth.reset(at: now)
-            recoveryAttempts = 0
         }
+        recovery.cancel()
         frameHealth.recordFrame(at: now)
         if snapshot.phase != .receiving {
             transition(.receiving, "영상 프레임을 수신하고 있습니다. 조종기 영상의 정상 여부는 화면에서 확인해 주세요.")
