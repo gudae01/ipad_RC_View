@@ -1,0 +1,25 @@
+# Local build products and signing material
+build/
+dist/
+DerivedData/
+*.ipa
+*.xcarchive
+*.xcresult
+*.mobileprovision
+*.p12
+*.p8
+*.cer
+*.key
+.env
+.env.*
+!.env.example
+
+# Xcode / editors / OS
+xcuserdata/
+*.xcuserstate
+.DS_Store
+Thumbs.db
+.vscode/
+__pycache__/
+*.pyc
+

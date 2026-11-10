@@ -1,0 +1,483 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {};
+	objectVersion = 56;
+	objects = {
+		09985CAEE2284FE6E8EC007F = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = "RCView/Capture/CaptureService.swift";
+			sourceTree = SOURCE_ROOT;
+		};
+		53A3349758C2E2850974ABCA = {
+			isa = PBXBuildFile;
+			fileRef = 09985CAEE2284FE6E8EC007F;
+		};
+		B3D4ED51C56328EBEDC959BF = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = "RCView/Capture/ExternalCaptureService.swift";
+			sourceTree = SOURCE_ROOT;
+		};
+		CCC50BA98ED928E57A41CD8D = {
+			isa = PBXBuildFile;
+			fileRef = B3D4ED51C56328EBEDC959BF;
+		};
+		262F3E8E40FC0647E9B6074E = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = "RCView/Capture/MockCaptureService.swift";
+			sourceTree = SOURCE_ROOT;
+		};
+		4E648D996A1E99790FAE0EAE = {
+			isa = PBXBuildFile;
+			fileRef = 262F3E8E40FC0647E9B6074E;
+		};
+		8A07B265410935F0D8BA5B22 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = "RCView/Core/CaptureModels.swift";
+			sourceTree = SOURCE_ROOT;
+		};
+		A741745818D185B1D3F91FD2 = {
+			isa = PBXBuildFile;
+			fileRef = 8A07B265410935F0D8BA5B22;
+		};
+		32CCBA6E2EF74346115AB0B6 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = "RCView/Core/FrameHealthMonitor.swift";
+			sourceTree = SOURCE_ROOT;
+		};
+		F5FB3B822123D75C67245DE4 = {
+			isa = PBXBuildFile;
+			fileRef = 32CCBA6E2EF74346115AB0B6;
+		};
+		DFE0EC5BA5C4DF2ABE3E3865 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = "RCView/Core/ViewerModel.swift";
+			sourceTree = SOURCE_ROOT;
+		};
+		3EC2650F55BAF0CE73F27781 = {
+			isa = PBXBuildFile;
+			fileRef = DFE0EC5BA5C4DF2ABE3E3865;
+		};
+		2779C0FD616496F87DC5D5EA = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = "RCView/RCViewApp.swift";
+			sourceTree = SOURCE_ROOT;
+		};
+		24156D667348B6E48905AABF = {
+			isa = PBXBuildFile;
+			fileRef = 2779C0FD616496F87DC5D5EA;
+		};
+		B00AADB19DBF1836D4F480FE = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = "RCView/UI/CapturePreview.swift";
+			sourceTree = SOURCE_ROOT;
+		};
+		8AC30C6F6EB9A5909FBF963B = {
+			isa = PBXBuildFile;
+			fileRef = B00AADB19DBF1836D4F480FE;
+		};
+		EF89F7DACD06E3CCA0B18356 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = "RCView/UI/ConnectionScreen.swift";
+			sourceTree = SOURCE_ROOT;
+		};
+		8B21994D3F98F378621D6E51 = {
+			isa = PBXBuildFile;
+			fileRef = EF89F7DACD06E3CCA0B18356;
+		};
+		0C88AA3A6EF41501EE75906B = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = "RCView/UI/DesignSystem.swift";
+			sourceTree = SOURCE_ROOT;
+		};
+		21B240C33510B9AD3D94AE6D = {
+			isa = PBXBuildFile;
+			fileRef = 0C88AA3A6EF41501EE75906B;
+		};
+		866AD5ADC0A180DB4A84ACAD = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = "RCView/UI/SettingsScreen.swift";
+			sourceTree = SOURCE_ROOT;
+		};
+		FC5D1AC0E91528DCAF9B2060 = {
+			isa = PBXBuildFile;
+			fileRef = 866AD5ADC0A180DB4A84ACAD;
+		};
+		F9C20B67BBAAE26A4CCAFDFE = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = "RCView/UI/ViewerScreen.swift";
+			sourceTree = SOURCE_ROOT;
+		};
+		0C64727A591AEB54E39F07CE = {
+			isa = PBXBuildFile;
+			fileRef = F9C20B67BBAAE26A4CCAFDFE;
+		};
+		CF11EAE905AD28831392CC09 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = "Tests/FrameHealthMonitorTests.swift";
+			sourceTree = SOURCE_ROOT;
+		};
+		B775DC58FEB391BC9231CDDC = {
+			isa = PBXBuildFile;
+			fileRef = CF11EAE905AD28831392CC09;
+		};
+		DCB355E21BFEBF320C4C7026 = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist.xml;
+			path = "RCView/Info.plist";
+			sourceTree = SOURCE_ROOT;
+		};
+		A78A8BC2F57BEB237E4251E8 = {
+			isa = PBXFileReference;
+			lastKnownFileType = folder.assetcatalog;
+			path = "RCView/Assets.xcassets";
+			sourceTree = SOURCE_ROOT;
+		};
+		999FF37E9C5A0FFB78E1CDE2 = {
+			isa = PBXBuildFile;
+			fileRef = A78A8BC2F57BEB237E4251E8;
+		};
+		681C948D238C526E9E3424E0 = {
+			isa = PBXFileReference;
+			explicitFileType = wrapper.application;
+			includeInIndex = 0;
+			path = RCView.app;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		F739566ED5280322FF98A798 = {
+			isa = PBXFileReference;
+			explicitFileType = wrapper.cfbundle;
+			includeInIndex = 0;
+			path = RCViewTests.xctest;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		C69913C7EE4DFDD011BE172F = {
+			isa = PBXGroup;
+			children = (
+				FC233BDA2344D97687F5A251,
+				C4E2E7F217DE3642E7714F4E,
+				B9E7F2871A3402983868AFC8,
+			);
+			sourceTree = "<group>";
+		};
+		FC233BDA2344D97687F5A251 = {
+			isa = PBXGroup;
+			children = (
+				09985CAEE2284FE6E8EC007F,
+				B3D4ED51C56328EBEDC959BF,
+				262F3E8E40FC0647E9B6074E,
+				8A07B265410935F0D8BA5B22,
+				32CCBA6E2EF74346115AB0B6,
+				DFE0EC5BA5C4DF2ABE3E3865,
+				2779C0FD616496F87DC5D5EA,
+				B00AADB19DBF1836D4F480FE,
+				EF89F7DACD06E3CCA0B18356,
+				0C88AA3A6EF41501EE75906B,
+				866AD5ADC0A180DB4A84ACAD,
+				F9C20B67BBAAE26A4CCAFDFE,
+				DCB355E21BFEBF320C4C7026,
+				A78A8BC2F57BEB237E4251E8,
+			);
+			name = RCView;
+			sourceTree = "<group>";
+		};
+		C4E2E7F217DE3642E7714F4E = {
+			isa = PBXGroup;
+			children = (
+				CF11EAE905AD28831392CC09,
+			);
+			name = Tests;
+			sourceTree = "<group>";
+		};
+		B9E7F2871A3402983868AFC8 = {
+			isa = PBXGroup;
+			children = (
+				681C948D238C526E9E3424E0,
+				F739566ED5280322FF98A798,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		AFF87A50730392B6633ACECE = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				53A3349758C2E2850974ABCA,
+				CCC50BA98ED928E57A41CD8D,
+				4E648D996A1E99790FAE0EAE,
+				A741745818D185B1D3F91FD2,
+				F5FB3B822123D75C67245DE4,
+				3EC2650F55BAF0CE73F27781,
+				24156D667348B6E48905AABF,
+				8AC30C6F6EB9A5909FBF963B,
+				8B21994D3F98F378621D6E51,
+				21B240C33510B9AD3D94AE6D,
+				FC5D1AC0E91528DCAF9B2060,
+				0C64727A591AEB54E39F07CE,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7A4C2DC8FCA657188648E999 = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F9187E824FE171A6F0EFAE28 = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				999FF37E9C5A0FFB78E1CDE2,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DEE94446A282611C16F7781C = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B775DC58FEB391BC9231CDDC,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B10CDED79664567B030B2B4F = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1F030AB36D1A3A4389CF71AE = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DAB01D73CBBCF1FEDE84E2D6 = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 244210E48437B6556980A702;
+			proxyType = 1;
+			remoteGlobalIDString = C1E9827DB735CA9BAA54A540;
+			remoteInfo = RCView;
+		};
+		F9A94CEF8CF7D85CE881E703 = {
+			isa = PBXTargetDependency;
+			target = C1E9827DB735CA9BAA54A540;
+			targetProxy = DAB01D73CBBCF1FEDE84E2D6;
+		};
+		C1E9827DB735CA9BAA54A540 = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1A3A93E5C91B1C47D83D97E5;
+			buildPhases = (
+				AFF87A50730392B6633ACECE,
+				7A4C2DC8FCA657188648E999,
+				F9187E824FE171A6F0EFAE28,
+			);
+			buildRules = ();
+			dependencies = (
+			);
+			name = RCView;
+			productName = RCView;
+			productReference = 681C948D238C526E9E3424E0;
+			productType = "com.apple.product-type.application";
+		};
+		9805CBD60EB4F66728D5D195 = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D27C03BC087E38918781FF88;
+			buildPhases = (
+				DEE94446A282611C16F7781C,
+				B10CDED79664567B030B2B4F,
+				1F030AB36D1A3A4389CF71AE,
+			);
+			buildRules = ();
+			dependencies = (
+				F9A94CEF8CF7D85CE881E703,
+			);
+			name = RCViewTests;
+			productName = RCViewTests;
+			productReference = F739566ED5280322FF98A798;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		244210E48437B6556980A702 = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					C1E9827DB735CA9BAA54A540 = { CreatedOnToolsVersion = 16.0; };
+					9805CBD60EB4F66728D5D195 = { CreatedOnToolsVersion = 16.0; TestTargetID = C1E9827DB735CA9BAA54A540; };
+				};
+			};
+			buildConfigurationList = 7ED5184A5487DF185E3420D0;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = ko;
+			hasScannedForEncodings = 0;
+			knownRegions = (ko, en, Base);
+			mainGroup = C69913C7EE4DFDD011BE172F;
+			productRefGroup = B9E7F2871A3402983868AFC8;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C1E9827DB735CA9BAA54A540,
+				9805CBD60EB4F66728D5D195,
+			);
+		};
+		488864B3D19480A82F7F1786 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = "NO";
+				CLANG_ENABLE_MODULES = "YES";
+				CLANG_ENABLE_OBJC_ARC = "YES";
+				CLANG_WARN_DOCUMENTATION_COMMENTS = "YES";
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "YES";
+				COPY_PHASE_STRIP = "NO";
+				DEBUG_INFORMATION_FORMAT = "dwarf";
+				ENABLE_TESTABILITY = "YES";
+				ENABLE_USER_SCRIPT_SANDBOXING = "YES";
+				GCC_C_LANGUAGE_STANDARD = "gnu17";
+				IPHONEOS_DEPLOYMENT_TARGET = "17.0";
+				ONLY_ACTIVE_ARCH = "YES";
+				SDKROOT = "iphoneos";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = "YES";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = "minimal";
+				SWIFT_VERSION = "5.0";
+			};
+			name = Debug;
+		};
+		35B1014F135DE9B45529B733 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = "NO";
+				CLANG_ENABLE_MODULES = "YES";
+				CLANG_ENABLE_OBJC_ARC = "YES";
+				CLANG_WARN_DOCUMENTATION_COMMENTS = "YES";
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "YES";
+				COPY_PHASE_STRIP = "NO";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_TESTABILITY = "NO";
+				ENABLE_USER_SCRIPT_SANDBOXING = "YES";
+				GCC_C_LANGUAGE_STANDARD = "gnu17";
+				IPHONEOS_DEPLOYMENT_TARGET = "17.0";
+				SDKROOT = "iphoneos";
+				SWIFT_COMPILATION_MODE = "wholemodule";
+				SWIFT_EMIT_LOC_STRINGS = "YES";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = "minimal";
+				SWIFT_VERSION = "5.0";
+			};
+			name = Release;
+		};
+		7ED5184A5487DF185E3420D0 = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				488864B3D19480A82F7F1786,
+				35B1014F135DE9B45529B733,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2A04C20BF6D5C20A63A1D4CC = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon";
+				CODE_SIGN_STYLE = "Automatic";
+				CURRENT_PROJECT_VERSION = "1";
+				GENERATE_INFOPLIST_FILE = "NO";
+				INFOPLIST_FILE = "RCView/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = "1.0.0";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.rcview.personal";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = "NO";
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = "NO";
+				TARGETED_DEVICE_FAMILY = "2";
+			};
+			name = Debug;
+		};
+		E28089EB494F94D6F9770EC2 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon";
+				CODE_SIGN_STYLE = "Automatic";
+				CURRENT_PROJECT_VERSION = "1";
+				GENERATE_INFOPLIST_FILE = "NO";
+				INFOPLIST_FILE = "RCView/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = "1.0.0";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.rcview.personal";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = "NO";
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = "NO";
+				TARGETED_DEVICE_FAMILY = "2";
+			};
+			name = Release;
+		};
+		1A3A93E5C91B1C47D83D97E5 = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2A04C20BF6D5C20A63A1D4CC,
+				E28089EB494F94D6F9770EC2,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		88B88E0179E3F72210D21B33 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = "Automatic";
+				GENERATE_INFOPLIST_FILE = "YES";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.rcview.personal.tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				TARGETED_DEVICE_FAMILY = "2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RCView.app/RCView";
+			};
+			name = Debug;
+		};
+		A8A9BF34DBF8F1867F207864 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = "Automatic";
+				GENERATE_INFOPLIST_FILE = "YES";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.rcview.personal.tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				TARGETED_DEVICE_FAMILY = "2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RCView.app/RCView";
+			};
+			name = Release;
+		};
+		D27C03BC087E38918781FF88 = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				88B88E0179E3F72210D21B33,
+				A8A9BF34DBF8F1867F207864,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+	};
+	rootObject = 244210E48437B6556980A702;
+}

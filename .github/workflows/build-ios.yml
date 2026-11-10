@@ -1,0 +1,58 @@
+name: Build RC View IPA
+
+# Manual only: avoid recurring cloud usage for this personal app.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rcview-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    # Standard macOS runner. Do not switch to a paid -large / -xlarge runner.
+    runs-on: macos-latest
+    timeout-minutes: 40
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Validate project structure
+        run: |
+          python3 scripts/generate_project.py
+          python3 scripts/validate_project.py
+          python3 -m unittest discover -s Tests/Python -v
+
+      - name: Compile and test on iPad simulator
+        run: bash scripts/test_simulator.sh
+
+      - name: Build and package unsigned device IPA
+        run: bash scripts/build_unsigned.sh
+
+      - name: Upload unsigned IPA and checksum
+        uses: actions/upload-artifact@v7
+        with:
+          name: RCView-unsigned-${{ github.run_number }}
+          path: |
+            dist/RCView-unsigned.ipa
+            dist/SHA256SUMS.txt
+            dist/BUILD-INFO.json
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
+
+      - name: Write installation note
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'NOTE'
+          ## RC View unsigned IPA
+          Download the artifact below and extract `RCView-unsigned.ipa`.
+          Sign and install it locally with Sideloadly and your own Apple account.
+          No Apple credentials or certificates are used by this workflow.
+          Free-account signatures need renewal within 7 days.
+          Simulator tests and a successful build do not verify your capture card or RC 2 video output.
+          NOTE
