@@ -2,14 +2,15 @@
 
 ## 현재 상태
 
-**새 아이콘과 최대 4K·60fps 변경을 포함한 커밋 `6ed08fd`는 Actions #3에서 빌드와 XCTest 16개를 통과했습니다. 이전 버전의 iPad PC 영상 표시는 사용자 자료로 확인했으며 새 버전의 실기기 시험은 별도입니다.** 검사 결과는 `docs/VALIDATION.md`에 기록합니다. 설계 PNG는 실제 실행 화면이 아닙니다.
+**파란 아이콘과 화면 복귀 후 자동 복구를 포함한 커밋 `bdad405`는 Actions #5에서 빌드와 XCTest 22개를 통과했습니다. 이전 버전의 iPad PC 영상 표시는 사용자 자료로 확인했으며 새 버전의 실기기 시험은 별도입니다.** 검사 결과는 `docs/VALIDATION.md`에 기록합니다. 설계 PNG는 실제 실행 화면이 아닙니다.
 
 | 항목 | 검증 수단 | 현재 구분 |
 |---|---|---|
 | 소스/프로젝트/권한/에셋/공유 Scheme 정합성 | Windows Python 검사 | 로컬 결과 참조 |
-| SwiftUI/AVFoundation 컴파일 | GitHub Actions Xcode | 커밋 `6ed08fd` 시뮬레이터·기기 빌드 성공 |
+| SwiftUI/AVFoundation 컴파일 | GitHub Actions Xcode | 커밋 `bdad405` 시뮬레이터·기기 빌드 성공 |
 | 프레임 감시/상태 단위 테스트 | GitHub Actions iPad 시뮬레이터 | 6개 통과, 실패 0 |
 | 최대 해상도/FPS·기본 형식 선택 단위 테스트 | `VideoFormatPolicyTests` | 10개 통과, 실패 0 |
+| 복귀 후 자동 재시도·취소·횟수 제한 | `CaptureRecoveryPolicyTests` | 6개 통과, 실패 0 |
 | 시뮬레이터 UI | 명시적 모의 서비스 | 실제 UVC 테스트 아님 |
 | IPA 서명/설치 | Windows Sideloadly + 개인 iPad | 기존 버전 설치·실행 사용자 보고 |
 | 장치 연결·형식·FPS·회전·부하 | 실제 iPad + UVC 캡처카드 | PC 영상 표시 확인. 커서 버벅임 보고, 수치·원인 미확인 |
@@ -39,7 +40,7 @@
 
 - [x] 기존 커밋 `5b2118b`: Actions 성공 및 artifact 1개 생성 화면 확인. 개별 로그·체크섬은 별도 확인 필요.
 - [x] 기존 버전: 사용자 iPad 설치·실행 및 PC 영상 표시 보고.
-- [x] 이번 변경: Actions #3의 iPad용 빌드/테스트가 통과하고 새 IPA 및 SHA-256이 생성됨. 다운로드 체크섬도 일치.
+- [x] 이번 변경: Actions #5의 iPad용 빌드/테스트가 통과하고 버전 1.2.0 IPA 및 SHA-256이 생성됨. 다운로드 체크섬도 일치.
 - [ ] 이번 변경: 새 IPA를 Sideloadly로 설치하여 실행.
 - [ ] 최초 실행에서 카메라 권한을 허용하면 장치 탐색 진행.
 - [ ] 거부하면 권한 안내 및 설정 이동. 내장 카메라/데모로 전환되지 않음.
