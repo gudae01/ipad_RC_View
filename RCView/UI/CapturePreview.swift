@@ -6,7 +6,6 @@ import UIKit
 struct CapturePreview: UIViewRepresentable {
     let session: AVCaptureSession
     let sourceSize: CGSize
-    let fill: Bool
     let quarterTurns: Int
     let zoom: CGFloat
 
@@ -20,10 +19,9 @@ struct CapturePreview: UIViewRepresentable {
         let sessionChanged = view.previewLayer.session !== session
         if sessionChanged { view.previewLayer.session = session }
         // FPS/status updates do not change the geometry of the live video.
-        let geometryChanged = view.sourceSize != sourceSize || view.fillsBounds != fill
+        let geometryChanged = view.sourceSize != sourceSize
             || view.quarterTurns != quarterTurns || view.zoom != zoom
         view.sourceSize = sourceSize
-        view.fillsBounds = fill
         view.quarterTurns = quarterTurns
         view.zoom = zoom
         view.configureConnection()
@@ -38,7 +36,6 @@ struct CapturePreview: UIViewRepresentable {
 final class PreviewHostView: UIView {
     let previewLayer = AVCaptureVideoPreviewLayer()
     var sourceSize = CGSize(width: 16, height: 9)
-    var fillsBounds = false
     var quarterTurns = 0
     var zoom: CGFloat = 1
 
@@ -61,7 +58,7 @@ final class PreviewHostView: UIView {
         let rotated = turns.isMultiple(of: 2) ? source : CGSize(width: source.height, height: source.width)
         let x = bounds.width / rotated.width
         let y = bounds.height / rotated.height
-        let factor = fillsBounds ? max(x, y) : min(x, y)
+        let factor = min(x, y)
 
         CATransaction.begin()
         CATransaction.setDisableActions(true)
@@ -93,7 +90,6 @@ final class PreviewHostView: UIView {
 /// Simulator-only illustrative landscape. It is never selected for a real disconnected iPad.
 struct DemoVideo: View {
     let sourceSize: CGSize
-    let fill: Bool
     let quarterTurns: Int
     let zoom: CGFloat
 
@@ -102,8 +98,7 @@ struct DemoVideo: View {
             let source = CGSize(width: max(sourceSize.width, 1), height: max(sourceSize.height, 1))
             let turns = ((quarterTurns % 4) + 4) % 4
             let rotated = turns.isMultiple(of: 2) ? source : CGSize(width: source.height, height: source.width)
-            let factor = fill ? max(geometry.size.width / rotated.width, geometry.size.height / rotated.height)
-                              : min(geometry.size.width / rotated.width, geometry.size.height / rotated.height)
+            let factor = min(geometry.size.width / rotated.width, geometry.size.height / rotated.height)
             landscape
                 .frame(width: source.width * factor, height: source.height * factor)
                 .rotationEffect(.degrees(Double(turns) * 90))

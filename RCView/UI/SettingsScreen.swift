@@ -5,7 +5,6 @@ struct SettingsScreen: View {
     @ObservedObject var model: ViewerModel
     @Binding var autoFullscreen: Bool
     @Binding var preventSleep: Bool
-    @Binding var fitMode: String
     @Binding var rotation: Int
     @Binding var showHelp: Bool
 
@@ -34,11 +33,10 @@ struct SettingsScreen: View {
                 RCCard {
                     VStack(alignment: .leading, spacing: 16) {
                         Text("영상 표시").font(.headline)
-                        Picker("기본 영상 맞춤", selection: $fitMode) {
-                            Text("원본 비율 유지").tag("fit")
-                            Text("화면 채우기").tag("fill")
-                        }.pickerStyle(.segmented)
-                        Text("‘화면 채우기’ 또는 확대 상태에서는 영상 가장자리가 잘릴 수 있습니다.")
+                        Label("원본 비율 유지", systemImage: "aspectratio")
+                        Text("영상 전체를 원본 비율로 표시합니다. iPad와 영상의 비율이 다르면 검은 여백이 생깁니다. 전체 화면에 들어갈 때 확대는 초기화됩니다.")
+                            .font(.caption).foregroundStyle(RCTheme.secondary)
+                        Text("핀치로 확대하면 가장자리가 잘릴 수 있습니다. ‘초기화’를 누르면 전체 영상이 다시 보입니다.")
                             .font(.caption).foregroundStyle(RCTheme.secondary)
                         Divider()
                         Picker("표시 회전", selection: $rotation) {
