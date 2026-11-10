@@ -26,12 +26,15 @@ Windows 샌드박스에서 임시 디렉터리와 Git Bash 프로세스 시작�
 
 - 지원 범위 상한과 기본 선택 정책을 분리하고 `VideoFormatPolicyTests`에 4K/60fps 경계, 범위 밖·유효하지 않은 값, 59.94fps 우선순위, 1080p60과 4K30의 선택 사례 10개를 추가했습니다.
 - 버전 1.1.0(빌드 2): Windows 프로젝트 재생성, 앱 Swift 소스 13개 참조 검증, 패키징 Python 테스트 3개, 정적 교차 검토와 `git diff --check`가 통과했습니다.
-- 이번 변경의 Xcode 빌드·XCTest 실행 결과는 PR의 Actions에서 확인합니다. 수동 실행 외에 앱·테스트·빌드 파일 변경 PR을 검증하며 예약 실행과 일반 push 실행은 없습니다.
+- 새 아이콘을 포함한 커밋 `6ed08fd`의 [GitHub Actions #3](https://github.com/gudae01/ipad_RC_View/actions/runs/42759059290)이 성공했습니다. Xcode 시뮬레이터 컴파일, XCTest 16개(프레임 감시 6개 + 형식 정책 10개), 기기용 Release 빌드 및 unsigned IPA 검증이 통과했습니다.
+- 내려받은 artifact ZIP 체크섬이 GitHub의 digest와 일치하고 IPA 체크섬도 `SHA256SUMS.txt` 및 `BUILD-INFO.json`과 일치했습니다. 버전 1.1.0, 빌드 2, IPA 1,538,715바이트, SHA-256 `b2a249ae612d46a1123f0e0a7ee785e06210e27a3963cf55f75ee40456cd8adf`입니다.
+- 지정된 아이콘 원본을 그대로 보관하고 1024×1024 RGB 에셋으로 변환했습니다. 아이콘/프로젝트 로컬 검사와 IPA의 arm64/iOS·실행 권한 검증도 통과했습니다.
+- 수동 실행 외에 앱·테스트·빌드 파일 변경 PR을 검증하며 예약 실행과 일반 push 실행은 없습니다. 이 검증 기록 갱신은 문서만 변경하므로 빌드를 반복하지 않습니다.
 - 실제 4K·60fps 수신 여부와 커서 움직임 개선은 실기기에서 비교해야 합니다. HDMI 4K 입력/패스스루 지원만으로 USB 4K 캡처 출력을 확인할 수 없습니다.
 
 ## 아직 검증하지 않은 항목
 
-- 이번 변경의 Xcode 빌드·XCTest 실행·새 IPA 설치와 실기기 입력.
+- 새 IPA의 iPad 설치와 실기기 입력.
 - Sideloadly 무료 서명 7일 갱신.
 - 장치별 최대 USB 출력 해상도/FPS와 iPad A16 연결 조건에서의 안정성.
 - DJI RC 2 영상 출력 여부 및 전체 경로의 지연.

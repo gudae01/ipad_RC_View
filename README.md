@@ -4,7 +4,7 @@
 
 SwiftUI + AVFoundation, iPadOS 17 이상, USB-C iPad 대상입니다. Windows에서 편집하고 GitHub Actions의 macOS 실행기로 **서명되지 않은 IPA**를 만든 다음, Windows의 Sideloadly에서 본인의 무료 Apple 계정으로 서명·설치합니다.
 
-> **현재 검증 범위:** 기존 커밋 `5b2118b`는 사용자가 제공한 Actions 성공 화면과 iPad 설치·PC 영상 표시 보고로 확인했습니다. 이번 최대 4K·60fps 선택 변경은 별도 빌드와 실기기 검증이 필요합니다. 전체 지연·장시간 안정성은 아직 측정하지 않았습니다. Apple 계정 비밀번호는 프로젝트나 GitHub에 넣지 않습니다.
+> **현재 검증 범위:** 새 아이콘과 최대 4K·60fps 선택 변경을 포함한 커밋 `6ed08fd`의 [빌드 #3](https://github.com/gudae01/ipad_RC_View/actions/runs/42759059290)이 성공했고 XCTest 16개와 기기용 IPA 검증이 통과했습니다. 이전 버전의 iPad 설치·PC 영상 표시는 사용자 보고로 확인했습니다. 새 버전의 실제 4K·60fps 수신·전체 지연·장시간 안정성은 실기기에서 확인해야 합니다. Apple 계정 비밀번호는 프로젝트나 GitHub에 넣지 않습니다.
 
 ![화면 설계 참고](design/mockups/overview.png)
 
