@@ -53,6 +53,8 @@ struct ConnectionScreen: View {
                 RCCard {
                     VStack(alignment: .leading, spacing: 16) {
                         Text("입력 형식").font(.headline)
+                        Text("최대 4K UHD · 60fps")
+                            .font(.subheadline.weight(.medium)).foregroundStyle(RCTheme.accent)
                         detailRow("활성 형식", value: model.snapshot.activeFormatDescription ?? "아직 활성화되지 않음")
                         if !model.snapshot.formats.isEmpty {
                             Picker("지원 형식", selection: Binding(
@@ -67,9 +69,11 @@ struct ConnectionScreen: View {
                                 }
                                 .pickerStyle(.menu)
                                 .frame(minHeight: 44)
-                                .disabled(![CapturePhase.receiving, .waiting, .stalled].contains(model.snapshot.phase))
+                                .disabled(![CapturePhase.receiving, .waiting, .stalled, .failed].contains(model.snapshot.phase))
                         }
-                        Text("장치가 보고한 지원 형식만 표시합니다. 이 값은 캡처카드의 USB 출력 형식이며, HDMI 원본의 세부 정보를 보장하지 않습니다.")
+                        Text("장치가 지원하는 3840 × 2160 이하·60fps 이하 형식만 표시합니다. 처음 연결하면 60fps(59.94 포함)를 우선하고 같은 프레임률에서는 높은 해상도를 선택합니다. 끊김이 있으면 낮은 해상도로 변경해 보세요.")
+                            .font(.caption).foregroundStyle(RCTheme.secondary)
+                        Text("이 값은 캡처카드의 USB 출력 형식입니다. HDMI 4K 입력 지원만으로 iPad에서 4K 캡처가 보장되지는 않습니다.")
                             .font(.caption).foregroundStyle(RCTheme.secondary)
                     }
                 }

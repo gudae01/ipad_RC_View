@@ -19,7 +19,6 @@ struct ViewerScreen: View {
     @Environment(\.accessibilityVoiceOverEnabled) private var voiceOverEnabled
     @AppStorage("autoFullscreen") private var autoFullscreen = false
     @AppStorage("preventSleep") private var preventSleep = true
-    @AppStorage("fitMode") private var fitMode = "fit"
     @AppStorage("displayRotation") private var rotation = 0
     @State private var tab = ViewerTab.viewer
     @State private var fullscreen = false
@@ -52,7 +51,7 @@ struct ViewerScreen: View {
                     ConnectionScreen(model: model, showHelp: $showHelp)
                 } else {
                     SettingsScreen(model: model, autoFullscreen: $autoFullscreen,
-                                   preventSleep: $preventSleep, fitMode: $fitMode,
+                                   preventSleep: $preventSleep,
                                    rotation: $rotation, showHelp: $showHelp)
                 }
                 if !fullscreen { navigation }
@@ -89,7 +88,11 @@ struct ViewerScreen: View {
             updateIdleTimer()
         }
         .onChange(of: fullscreen) { _, active in
-            if active { revealControls() } else { hideControlsTask?.cancel(); controlsVisible = true }
+            if active {
+                zoom = 1
+                gestureStartZoom = nil
+                revealControls()
+            } else { hideControlsTask?.cancel(); controlsVisible = true }
             updateIdleTimer()
         }
         .onChange(of: tab) { _, _ in updateIdleTimer() }
@@ -158,11 +161,11 @@ struct ViewerScreen: View {
             (receiving || fullscreen ? Color.black : RCTheme.card)
             if model.isDemo {
                 if receiving {
-                    DemoVideo(sourceSize: sourceSize, fill: fitMode == "fill", quarterTurns: rotation, zoom: zoom)
+                    DemoVideo(sourceSize: sourceSize, quarterTurns: rotation, zoom: zoom)
                 }
             } else {
                 CapturePreview(session: model.session, sourceSize: sourceSize,
-                               fill: fitMode == "fill", quarterTurns: rotation, zoom: zoom)
+                               quarterTurns: rotation, zoom: zoom)
                     .opacity(receiving ? 1 : 0)
                     .accessibilityHidden(!receiving)
             }
@@ -275,15 +278,6 @@ struct ViewerScreen: View {
                     .buttonStyle(RCButtonStyle()).disabled(!receiving)
             }
             Spacer(minLength: 0)
-            if !compact {
-                Menu {
-                    Button("원본 비율 유지", systemImage: "rectangle") { fitMode = "fit" }
-                    Button("화면 채우기 · 가장자리 잘림", systemImage: "rectangle.fill") { fitMode = "fill" }
-                } label: {
-                    Label(fitMode == "fill" ? "화면 채우기" : "원본 비율", systemImage: "aspectratio")
-                }
-                .buttonStyle(RCButtonStyle())
-            }
             Button { fullscreen = true } label: {
                 Label("전체 화면", systemImage: "arrow.up.left.and.arrow.down.right")
             }.buttonStyle(RCButtonStyle(prominent: true))
@@ -318,9 +312,6 @@ struct ViewerScreen: View {
                     Button(action: rotate) { Label("회전", systemImage: "rotate.right") }
                         .buttonStyle(RCButtonStyle(dark: true)).disabled(!receiving)
                     Spacer(minLength: 8)
-                    Button(action: toggleFit) {
-                        Label(fitMode == "fill" ? "원본 비율 유지" : "화면 채우기", systemImage: "aspectratio")
-                    }.buttonStyle(RCButtonStyle(dark: true))
                 }
                 HStack(spacing: 12) {
                     RCIconButton(title: "확대 초기화", symbol: "arrow.counterclockwise", dark: true, action: resetZoom)
@@ -328,7 +319,6 @@ struct ViewerScreen: View {
                     RCIconButton(title: "시계 방향 90도 회전", symbol: "rotate.right", dark: true, action: rotate)
                         .disabled(!receiving)
                     Spacer(minLength: 8)
-                    RCIconButton(title: fitMode == "fill" ? "원본 비율 유지" : "화면 채우기", symbol: "aspectratio", dark: true, action: toggleFit)
                 }
             }
         }
@@ -362,7 +352,6 @@ struct ViewerScreen: View {
 
     private func resetZoom() { zoom = 1; gestureStartZoom = nil; if fullscreen { revealControls() } }
     private func rotate() { rotation = (rotation + 1) % 4; if fullscreen { revealControls() } }
-    private func toggleFit() { fitMode = fitMode == "fill" ? "fit" : "fill"; revealControls() }
 
     private func revealControls() {
         hideControlsTask?.cancel()

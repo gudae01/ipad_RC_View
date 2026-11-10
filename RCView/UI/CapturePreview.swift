@@ -6,7 +6,6 @@ import UIKit
 struct CapturePreview: UIViewRepresentable {
     let session: AVCaptureSession
     let sourceSize: CGSize
-    let fill: Bool
     let quarterTurns: Int
     let zoom: CGFloat
 
@@ -17,12 +16,16 @@ struct CapturePreview: UIViewRepresentable {
     }
 
     func updateUIView(_ view: PreviewHostView, context: Context) {
-        if view.previewLayer.session !== session { view.previewLayer.session = session }
+        let sessionChanged = view.previewLayer.session !== session
+        if sessionChanged { view.previewLayer.session = session }
+        // FPS/status updates do not change the geometry of the live video.
+        let geometryChanged = view.sourceSize != sourceSize
+            || view.quarterTurns != quarterTurns || view.zoom != zoom
         view.sourceSize = sourceSize
-        view.fillsBounds = fill
         view.quarterTurns = quarterTurns
         view.zoom = zoom
-        view.setNeedsLayout()
+        view.configureConnection()
+        if sessionChanged || geometryChanged { view.setNeedsLayout() }
     }
 
     static func dismantleUIView(_ view: PreviewHostView, coordinator: ()) {
@@ -33,7 +36,6 @@ struct CapturePreview: UIViewRepresentable {
 final class PreviewHostView: UIView {
     let previewLayer = AVCaptureVideoPreviewLayer()
     var sourceSize = CGSize(width: 16, height: 9)
-    var fillsBounds = false
     var quarterTurns = 0
     var zoom: CGFloat = 1
 
@@ -56,16 +58,11 @@ final class PreviewHostView: UIView {
         let rotated = turns.isMultiple(of: 2) ? source : CGSize(width: source.height, height: source.width)
         let x = bounds.width / rotated.width
         let y = bounds.height / rotated.height
-        let factor = fillsBounds ? max(x, y) : min(x, y)
+        let factor = min(x, y)
 
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        // External devices may default to mirrored. Override every time a connection appears.
-        if let connection = previewLayer.connection {
-            connection.automaticallyAdjustsVideoMirroring = false
-            if connection.isVideoMirroringSupported { connection.isVideoMirrored = false }
-            if connection.isVideoRotationAngleSupported(0) { connection.videoRotationAngle = 0 }
-        }
+        configureConnection()
         previewLayer.bounds = CGRect(origin: .zero,
                                      size: CGSize(width: source.width * factor, height: source.height * factor))
         previewLayer.position = CGPoint(x: bounds.midX, y: bounds.midY)
@@ -73,12 +70,26 @@ final class PreviewHostView: UIView {
             .scaledBy(x: zoom, y: zoom))
         CATransaction.commit()
     }
+
+    func configureConnection() {
+        // A session rebuild can replace this connection without changing geometry.
+        if let connection = previewLayer.connection {
+            if connection.automaticallyAdjustsVideoMirroring {
+                connection.automaticallyAdjustsVideoMirroring = false
+            }
+            if connection.isVideoMirroringSupported && connection.isVideoMirrored {
+                connection.isVideoMirrored = false
+            }
+            if connection.videoRotationAngle != 0 && connection.isVideoRotationAngleSupported(0) {
+                connection.videoRotationAngle = 0
+            }
+        }
+    }
 }
 
 /// Simulator-only illustrative landscape. It is never selected for a real disconnected iPad.
 struct DemoVideo: View {
     let sourceSize: CGSize
-    let fill: Bool
     let quarterTurns: Int
     let zoom: CGFloat
 
@@ -87,8 +98,7 @@ struct DemoVideo: View {
             let source = CGSize(width: max(sourceSize.width, 1), height: max(sourceSize.height, 1))
             let turns = ((quarterTurns % 4) + 4) % 4
             let rotated = turns.isMultiple(of: 2) ? source : CGSize(width: source.height, height: source.width)
-            let factor = fill ? max(geometry.size.width / rotated.width, geometry.size.height / rotated.height)
-                              : min(geometry.size.width / rotated.width, geometry.size.height / rotated.height)
+            let factor = min(geometry.size.width / rotated.width, geometry.size.height / rotated.height)
             landscape
                 .frame(width: source.width * factor, height: source.height * factor)
                 .rotationEffect(.degrees(Double(turns) * 90))

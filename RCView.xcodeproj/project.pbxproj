@@ -44,6 +44,16 @@
 			isa = PBXBuildFile;
 			fileRef = 8A07B265410935F0D8BA5B22;
 		};
+		D671B06B92EA6FA98D6C3B59 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = "RCView/Core/CaptureRecoveryPolicy.swift";
+			sourceTree = SOURCE_ROOT;
+		};
+		68429991A1998D72AFB64FA2 = {
+			isa = PBXBuildFile;
+			fileRef = D671B06B92EA6FA98D6C3B59;
+		};
 		32CCBA6E2EF74346115AB0B6 = {
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.swift;
@@ -53,6 +63,16 @@
 		F5FB3B822123D75C67245DE4 = {
 			isa = PBXBuildFile;
 			fileRef = 32CCBA6E2EF74346115AB0B6;
+		};
+		7348E653FE92B5906C932B3E = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = "RCView/Core/VideoFormatPolicy.swift";
+			sourceTree = SOURCE_ROOT;
+		};
+		AAD0B04423B684B0EF3D738F = {
+			isa = PBXBuildFile;
+			fileRef = 7348E653FE92B5906C932B3E;
 		};
 		DFE0EC5BA5C4DF2ABE3E3865 = {
 			isa = PBXFileReference;
@@ -124,6 +144,16 @@
 			isa = PBXBuildFile;
 			fileRef = F9C20B67BBAAE26A4CCAFDFE;
 		};
+		ED7931DB5066DE92F6213439 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = "Tests/CaptureRecoveryPolicyTests.swift";
+			sourceTree = SOURCE_ROOT;
+		};
+		9A917F84D06B5F4EEEE01685 = {
+			isa = PBXBuildFile;
+			fileRef = ED7931DB5066DE92F6213439;
+		};
 		CF11EAE905AD28831392CC09 = {
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.swift;
@@ -133,6 +163,16 @@
 		B775DC58FEB391BC9231CDDC = {
 			isa = PBXBuildFile;
 			fileRef = CF11EAE905AD28831392CC09;
+		};
+		79F776DDBBC703D12AAA5583 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = "Tests/VideoFormatPolicyTests.swift";
+			sourceTree = SOURCE_ROOT;
+		};
+		2BABAA4F304DF860C99D3EF3 = {
+			isa = PBXBuildFile;
+			fileRef = 79F776DDBBC703D12AAA5583;
 		};
 		DCB355E21BFEBF320C4C7026 = {
 			isa = PBXFileReference;
@@ -180,7 +220,9 @@
 				B3D4ED51C56328EBEDC959BF,
 				262F3E8E40FC0647E9B6074E,
 				8A07B265410935F0D8BA5B22,
+				D671B06B92EA6FA98D6C3B59,
 				32CCBA6E2EF74346115AB0B6,
+				7348E653FE92B5906C932B3E,
 				DFE0EC5BA5C4DF2ABE3E3865,
 				2779C0FD616496F87DC5D5EA,
 				B00AADB19DBF1836D4F480FE,
@@ -197,7 +239,9 @@
 		C4E2E7F217DE3642E7714F4E = {
 			isa = PBXGroup;
 			children = (
+				ED7931DB5066DE92F6213439,
 				CF11EAE905AD28831392CC09,
+				79F776DDBBC703D12AAA5583,
 			);
 			name = Tests;
 			sourceTree = "<group>";
@@ -219,7 +263,9 @@
 				CCC50BA98ED928E57A41CD8D,
 				4E648D996A1E99790FAE0EAE,
 				A741745818D185B1D3F91FD2,
+				68429991A1998D72AFB64FA2,
 				F5FB3B822123D75C67245DE4,
+				AAD0B04423B684B0EF3D738F,
 				3EC2650F55BAF0CE73F27781,
 				24156D667348B6E48905AABF,
 				8AC30C6F6EB9A5909FBF963B,
@@ -249,7 +295,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9A917F84D06B5F4EEEE01685,
 				B775DC58FEB391BC9231CDDC,
+				2BABAA4F304DF860C99D3EF3,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -397,11 +445,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon";
 				CODE_SIGN_STYLE = "Automatic";
-				CURRENT_PROJECT_VERSION = "1";
+				CURRENT_PROJECT_VERSION = "4";
 				GENERATE_INFOPLIST_FILE = "NO";
 				INFOPLIST_FILE = "RCView/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = "1.0.0";
+				MARKETING_VERSION = "1.2.0";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.rcview.personal";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -416,11 +464,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon";
 				CODE_SIGN_STYLE = "Automatic";
-				CURRENT_PROJECT_VERSION = "1";
+				CURRENT_PROJECT_VERSION = "4";
 				GENERATE_INFOPLIST_FILE = "NO";
 				INFOPLIST_FILE = "RCView/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = "1.0.0";
+				MARKETING_VERSION = "1.2.0";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.rcview.personal";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

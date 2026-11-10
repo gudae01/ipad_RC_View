@@ -5,7 +5,6 @@ struct SettingsScreen: View {
     @ObservedObject var model: ViewerModel
     @Binding var autoFullscreen: Bool
     @Binding var preventSleep: Bool
-    @Binding var fitMode: String
     @Binding var rotation: Int
     @Binding var showHelp: Bool
 
@@ -29,16 +28,19 @@ struct SettingsScreen: View {
                         Toggle("영상 표시 중 화면 꺼짐 방지", isOn: $preventSleep).frame(minHeight: 44)
                         Text("뷰어가 보이고 영상 프레임을 수신할 때만 적용됩니다.")
                             .font(.caption).foregroundStyle(RCTheme.secondary)
+                        Divider()
+                        Label("잠금 해제 후 자동 다시 연결", systemImage: "arrow.triangle.2.circlepath")
+                        Text("사용 중이던 캡처카드가 연결되어 있으면 앱으로 돌아왔을 때 영상을 자동으로 다시 표시합니다. 잠금 중에는 iPadOS가 영상 수신을 중단할 수 있습니다.")
+                            .font(.caption).foregroundStyle(RCTheme.secondary)
                     }
                 }
                 RCCard {
                     VStack(alignment: .leading, spacing: 16) {
                         Text("영상 표시").font(.headline)
-                        Picker("기본 영상 맞춤", selection: $fitMode) {
-                            Text("원본 비율 유지").tag("fit")
-                            Text("화면 채우기").tag("fill")
-                        }.pickerStyle(.segmented)
-                        Text("‘화면 채우기’ 또는 확대 상태에서는 영상 가장자리가 잘릴 수 있습니다.")
+                        Label("원본 비율 유지", systemImage: "aspectratio")
+                        Text("영상 전체를 원본 비율로 표시합니다. iPad와 영상의 비율이 다르면 검은 여백이 생깁니다. 전체 화면에 들어갈 때 확대는 초기화됩니다.")
+                            .font(.caption).foregroundStyle(RCTheme.secondary)
+                        Text("핀치로 확대하면 가장자리가 잘릴 수 있습니다. ‘초기화’를 누르면 전체 영상이 다시 보입니다.")
                             .font(.caption).foregroundStyle(RCTheme.secondary)
                         Divider()
                         Picker("표시 회전", selection: $rotation) {
@@ -98,7 +100,7 @@ struct ConnectionHelpSheet: View {
                     helpStep("4", title: "실제 조종기 화면인지 확인하세요",
                              text: "‘프레임 수신 중’이어도 캡처카드의 검은 화면이나 ‘No Signal’ 안내일 수 있습니다. 조종기의 영상 출력과 HDMI 연결을 확인하세요. 앱은 출력 신호가 없는 문제를 해결할 수 없습니다.")
                     helpStep("5", title: "전체 화면에서 편하게 보세요",
-                             text: "전체 화면에서는 터치하면 조작부가 나타나고 약 3초 후 숨겨집니다. 핀치로 확대하고 ‘초기화’로 되돌릴 수 있습니다. 회전·확대·터치는 드론 제어와 연결되지 않습니다.")
+                             text: "전체 화면에서는 터치하면 조작부가 나타나고 약 3초 후 숨겨집니다. 원본 비율로 전체 영상을 표시하며, 핀치로 확대하고 ‘초기화’로 되돌릴 수 있습니다. 화면을 잠갔다가 앱으로 돌아오면 연결된 캡처카드로 자동 복구를 시도합니다. 회전·확대·터치는 드론 제어와 연결되지 않습니다.")
                     Text("캡처카드 호환성, 장시간 안정성, 발열 및 조종기부터 iPad까지의 전체 지연은 실제 장치로 확인해야 합니다.")
                         .font(.footnote).foregroundStyle(RCTheme.secondary)
                 }.padding(24)
