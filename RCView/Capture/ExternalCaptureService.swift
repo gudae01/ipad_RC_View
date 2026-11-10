@@ -40,7 +40,7 @@ final class ExternalCaptureService: NSObject, CaptureService, AVCaptureVideoData
             switch self {
             case .inputUnavailable: return "이 외부 장치를 영상 세션에 연결할 수 없습니다."
             case .outputUnavailable: return "영상 프레임을 관측할 출력을 만들 수 없습니다."
-            case .noFormats: return "장치에서 사용 가능한 영상 형식을 찾지 못했습니다."
+            case .noFormats: return "장치에서 3840 × 2160 이하·60fps 이하의 지원 형식을 찾지 못했습니다."
             case .invalidFormat: return "선택한 형식이 현재 장치에서 더 이상 지원되지 않습니다."
             }
         }
@@ -90,7 +90,7 @@ final class ExternalCaptureService: NSObject, CaptureService, AVCaptureVideoData
     func reconnect() {
         queue.async { [weak self] in
             guard let self, self.begun else { return }
-            // A failed format must not be retried forever by the recovery button.
+            // Clear a failed manual choice and negotiate the preferred supported format again.
             if self.snapshot.phase == .failed { self.desiredFormat = nil }
             self.wantsToRun = true
             self.recoveryAttempts = 0
@@ -111,11 +111,18 @@ final class ExternalCaptureService: NSObject, CaptureService, AVCaptureVideoData
 
     func selectFormat(_ id: String) {
         queue.async { [weak self] in
-            guard let self, let choice = self.nativeFormats[id], let input = self.input,
-                  self.active, input.device.isConnected else { return }
-            self.desiredFormat = choice.option
+            guard let self, self.active,
+                  let choice = self.snapshot.formats.first(where: { $0.id == id }),
+                  let deviceID = self.snapshot.selectedDeviceID else { return }
+            // A failed high-bandwidth format may have removed the session input.
+            // Rediscover the external device so a lower supported mode can recover it.
+            guard let device = AVCaptureDevice.DiscoverySession(
+                deviceTypes: [.external], mediaType: .video, position: .unspecified
+            ).devices.first(where: { $0.uniqueID == deviceID && $0.isConnected }) else { return }
+            self.desiredFormat = choice
             self.wantsToRun = true
-            self.configure(device: input.device, selectedFormatID: id)
+            self.recoveryAttempts = 0
+            self.configure(device: device, selectedFormatID: id)
         }
     }
 
@@ -233,11 +240,14 @@ final class ExternalCaptureService: NSObject, CaptureService, AVCaptureVideoData
         guard active, device.isConnected else { return }
         transition(.reconnecting, "외부 영상 장치를 준비하고 있습니다.")
         stopAndRemoveGraph()
-        snapshot.observedFPS = nil
+        clearSelectionSnapshot()
+        snapshot.selectedDeviceID = device.uniqueID
+        snapshot.selectedDeviceName = device.localizedName
         interrupted = false
 
         do {
             let formats = enumerateFormats(device)
+            snapshot.formats = formats.map(\.option)
             guard !formats.isEmpty else { throw SetupError.noFormats }
             nativeFormats = Dictionary(uniqueKeysWithValues: formats.map { ($0.option.id, $0) })
             let choice: NativeFormat
@@ -250,7 +260,9 @@ final class ExternalCaptureService: NSObject, CaptureService, AVCaptureVideoData
                       }) {
                 choice = matching
             } else {
-                choice = formats.min { defaultScore($0.option) < defaultScore($1.option) }!
+                guard let preferred = VideoFormatPolicy.preferredFormat(in: formats.map(\.option)),
+                      let selected = nativeFormats[preferred.id] else { throw SetupError.noFormats }
+                choice = selected
             }
 
             let newInput = try AVCaptureDeviceInput(device: device)
@@ -319,8 +331,12 @@ final class ExternalCaptureService: NSObject, CaptureService, AVCaptureVideoData
             }
         } catch {
             stopAndRemoveGraph()
-            clearSelectionSnapshot()
-            transition(.failed, "\(error.localizedDescription) 캡처카드 연결을 확인한 뒤 재연결해 주세요.")
+            snapshot.selectedFormatID = nil
+            snapshot.activeFormatDescription = nil
+            snapshot.presentationWidth = nil
+            snapshot.presentationHeight = nil
+            // Keep the device's advertised options available after a setup failure.
+            transition(.failed, "\(error.localizedDescription) 연결 화면에서 더 낮은 지원 형식을 선택하거나 캡처카드를 다시 연결해 주세요.")
         }
     }
 
@@ -328,7 +344,7 @@ final class ExternalCaptureService: NSObject, CaptureService, AVCaptureVideoData
         var choices: [NativeFormat] = []
         for (index, format) in device.formats.enumerated() {
             let dimensions = CMVideoFormatDescriptionGetDimensions(format.formatDescription)
-            guard dimensions.width > 0, dimensions.height > 0 else { continue }
+            guard VideoFormatPolicy.supportsDimensions(width: Int(dimensions.width), height: Int(dimensions.height)) else { continue }
             let subtype = CMFormatDescriptionGetMediaSubType(format.formatDescription)
             let codec = String(bytes: [24, 16, 8, 0].map { UInt8((subtype >> $0) & 0xff) }, encoding: .ascii) ?? "video"
             var seenDurations = Set<String>()
@@ -337,9 +353,7 @@ final class ExternalCaptureService: NSObject, CaptureService, AVCaptureVideoData
                       range.minFrameRate > 0, range.maxFrameRate >= range.minFrameRate else { continue }
                 // Only offer endpoints and common rates actually contained in
                 // a reported range. No guessed resolution/rate is shown.
-                let rates = [range.minFrameRate, range.maxFrameRate] + [24, 25, 29.97, 30, 50, 59.94, 60, 120].filter {
-                    $0 >= range.minFrameRate && $0 <= range.maxFrameRate
-                }
+                let rates = VideoFormatPolicy.candidateFrameRates(min: range.minFrameRate, max: range.maxFrameRate)
                 for rate in rates {
                     let duration: CMTime
                     if abs(rate - range.maxFrameRate) < 0.000001 {
@@ -361,6 +375,7 @@ final class ExternalCaptureService: NSObject, CaptureService, AVCaptureVideoData
                         title: "\(dimensions.width) × \(dimensions.height) · \(Self.fpsText(actualFPS)) fps · \(codec)",
                         width: Int(dimensions.width), height: Int(dimensions.height), fps: actualFPS
                     )
+                    guard VideoFormatPolicy.isSupported(option) else { continue }
                     choices.append(NativeFormat(option: option, format: format, frameDuration: duration))
                 }
             }
@@ -371,14 +386,6 @@ final class ExternalCaptureService: NSObject, CaptureService, AVCaptureVideoData
             if abs($0.option.fps - $1.option.fps) > 0.001 { return $0.option.fps > $1.option.fps }
             return $0.option.id < $1.option.id
         }
-    }
-
-    private func defaultScore(_ option: VideoFormatOption) -> Double {
-        // Prefer 1080p near 30 fps; avoid automatically requesting 4K/120 fps.
-        let pixels = Double(option.width) * Double(option.height)
-        let overHD = pixels > 1_920 * 1_080 ? 10_000.0 : 0
-        let over30 = option.fps > 30.01 ? 1_000.0 : 0
-        return overHD + over30 + abs(pixels - 1_920 * 1_080) / 10_000 + abs(option.fps - 30) * 5
     }
 
     private static func fpsText(_ fps: Double) -> String {

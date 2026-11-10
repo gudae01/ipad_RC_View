@@ -17,12 +17,17 @@ struct CapturePreview: UIViewRepresentable {
     }
 
     func updateUIView(_ view: PreviewHostView, context: Context) {
-        if view.previewLayer.session !== session { view.previewLayer.session = session }
+        let sessionChanged = view.previewLayer.session !== session
+        if sessionChanged { view.previewLayer.session = session }
+        // FPS/status updates do not change the geometry of the live video.
+        let geometryChanged = view.sourceSize != sourceSize || view.fillsBounds != fill
+            || view.quarterTurns != quarterTurns || view.zoom != zoom
         view.sourceSize = sourceSize
         view.fillsBounds = fill
         view.quarterTurns = quarterTurns
         view.zoom = zoom
-        view.setNeedsLayout()
+        view.configureConnection()
+        if sessionChanged || geometryChanged { view.setNeedsLayout() }
     }
 
     static func dismantleUIView(_ view: PreviewHostView, coordinator: ()) {
@@ -60,18 +65,28 @@ final class PreviewHostView: UIView {
 
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        // External devices may default to mirrored. Override every time a connection appears.
-        if let connection = previewLayer.connection {
-            connection.automaticallyAdjustsVideoMirroring = false
-            if connection.isVideoMirroringSupported { connection.isVideoMirrored = false }
-            if connection.isVideoRotationAngleSupported(0) { connection.videoRotationAngle = 0 }
-        }
+        configureConnection()
         previewLayer.bounds = CGRect(origin: .zero,
                                      size: CGSize(width: source.width * factor, height: source.height * factor))
         previewLayer.position = CGPoint(x: bounds.midX, y: bounds.midY)
         previewLayer.setAffineTransform(CGAffineTransform(rotationAngle: CGFloat(turns) * .pi / 2)
             .scaledBy(x: zoom, y: zoom))
         CATransaction.commit()
+    }
+
+    func configureConnection() {
+        // A session rebuild can replace this connection without changing geometry.
+        if let connection = previewLayer.connection {
+            if connection.automaticallyAdjustsVideoMirroring {
+                connection.automaticallyAdjustsVideoMirroring = false
+            }
+            if connection.isVideoMirroringSupported && connection.isVideoMirrored {
+                connection.isVideoMirrored = false
+            }
+            if connection.videoRotationAngle != 0 && connection.isVideoRotationAngleSupported(0) {
+                connection.videoRotationAngle = 0
+            }
+        }
     }
 }
 

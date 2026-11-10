@@ -4,14 +4,14 @@
 
 SwiftUI + AVFoundation, iPadOS 17 이상, USB-C iPad 대상입니다. Windows에서 편집하고 GitHub Actions의 macOS 실행기로 **서명되지 않은 IPA**를 만든 다음, Windows의 Sideloadly에서 본인의 무료 Apple 계정으로 서명·설치합니다.
 
-> **현재 검증 범위:** 이 작업 환경은 Windows입니다. 프로젝트 구조·설정과 로컬 정적 검사를 수행할 수 있지만 Xcode 빌드, iPad 설치, UVC 캡처카드 입력은 아직 검증하지 않았습니다. GitHub Actions의 빌드/테스트 성공과 `docs/TESTING.md`의 실기기 확인이 필요합니다. Apple 계정 비밀번호는 프로젝트나 GitHub에 넣지 않습니다.
+> **현재 검증 범위:** 기존 커밋 `5b2118b`는 사용자가 제공한 Actions 성공 화면과 iPad 설치·PC 영상 표시 보고로 확인했습니다. 이번 최대 4K·60fps 선택 변경은 별도 빌드와 실기기 검증이 필요합니다. 전체 지연·장시간 안정성은 아직 측정하지 않았습니다. Apple 계정 비밀번호는 프로젝트나 GitHub에 넣지 않습니다.
 
 ![화면 설계 참고](design/mockups/overview.png)
 
 ## 시작
 
 1. [Windows → GitHub Actions → Sideloadly 설치 안내](docs/INSTALL-WINDOWS.md)를 따라 저장소와 빌드를 준비합니다.
-2. Actions에서 `Build RC View IPA` 워크플로를 수동 실행합니다.
+2. Actions에서 `Build RC View IPA` 워크플로를 수동 실행합니다. 앱·테스트·빌드 파일을 변경한 PR에서도 동일한 검증과 IPA 생성이 실행됩니다.
 3. 성공한 실행의 IPA artifact를 다운로드하고 ZIP을 풉니다.
 4. `RCView-unsigned.ipa`를 Sideloadly로 iPad에 설치합니다.
 5. 카메라 접근을 허용하고 UVC 캡처카드를 연결합니다.
@@ -20,7 +20,8 @@ SwiftUI + AVFoundation, iPadOS 17 이상, USB-C iPad 대상입니다. Windows에
 
 - 외부 UVC 장치만 검색. 내장 카메라로 자동 전환하지 않습니다.
 - 단일 장치 자동 미리보기, 여러 장치 선택, 연결/해제/재연결 처리.
-- 실제 장치가 제공하는 해상도·프레임률 선택, 활성 형식과 관측된 수신 FPS 표시.
+- 실제 장치가 제공하는 **최대 UHD 4K(3840×2160)·60fps** 범위의 해상도·프레임률 선택. 활성 형식과 관측된 수신 FPS 표시.
+- 자동 선택은 60fps를 우선하고, 같은 프레임률에서는 높은 해상도를 선택합니다. 59.94fps는 60fps와 같은 우선순위입니다. 지원되는 다른 형식으로 수동 변경할 수 있습니다.
 - 비율 유지/화면 채우기, 핀치 확대와 초기화, 90도 표시 회전.
 - 전체 화면, 터치 시 조작부 표시, 약 3초 후 자동 숨김.
 - 카메라 권한·프레임 대기·수신 중단·세션 오류를 별도로 표시.
@@ -41,7 +42,9 @@ SwiftUI + AVFoundation, iPadOS 17 이상, USB-C iPad 대상입니다. Windows에
 - 일반 USB-C→HDMI 출력 어댑터만으로 iPad에 영상을 입력할 수 없습니다.
 - 캡처카드가 검은 화면이나 자체 `No Signal` 화면을 송출해도 프레임은 수신될 수 있습니다. 앱은 이를 원본 신호 정상으로 단정하지 않습니다.
 - 앱의 터치는 영상 표시만 변경하며 드론/조종기를 제어하지 않습니다.
-- 대상 iPad 모델과 캡처카드 모델은 아직 지정/실측되지 않았습니다. 모든 UVC 장치의 호환성을 보장하지 않습니다.
+- 사용자는 **iPad A16 + Lemorele 캡처카드**에서 PC 영상 표시를 확인했습니다. 캡처카드의 정확한 모델과 활성 해상도·수신 FPS는 아직 확인되지 않았습니다.
+- **HDMI 4K 입력/패스스루 지원과 USB 4K 캡처 출력 지원은 다릅니다.** 4K·60fps가 장치의 USB 출력 형식으로 제공되어야 앱에서 선택할 수 있습니다. 앱이 영상을 4K로 업스케일하거나 60fps로 보간하지 않습니다.
+- iPad A16의 USB 포트는 [USB 2.0, 최대 480Mb/s](https://www.apple.com/ipad-11/specs/)입니다. 캡처카드의 USB 출력 형식과 연결 조건에 따라 사용 가능한 해상도·프레임률이 달라집니다. 모든 UVC 장치의 호환성이나 4K·60fps 수신을 보장하지 않습니다.
 
 ## 폴더
 
